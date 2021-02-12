@@ -1,0 +1,32 @@
+version: "3.7"
+networks:
+  app-tier:
+    driver: bridge
+services:
+  mongodb:
+    image: bitnami/mongodb:latest
+    restart: always
+    environment:
+      MONGODB_USERNAME: danhvt
+      MONGODB_PASSWORD: password123
+      MONGODB_DATABASE: example
+    volumes:
+      - .docker/todo-app-db:/bitnami/mongodb
+    ports:
+      - '37017:27017'
+    networks:
+      - app-tier
+  todo_app_backend:
+    build:
+      context: 'backend'
+    container_name: todo_app_backend
+    ports:
+      - '13009:3009'
+    depends_on:
+      - mongodb
+    networks:
+      - app-tier
+
+
+
+      
