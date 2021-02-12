@@ -9,11 +9,12 @@ export async function createServer(): Promise<Hapi.Server> {
         port,
         debug: isProduction ? false : { request: ['error'], log: ['error'] },
     })
-
+    
     await server.register([
         LoggingPlugin,
         SwaggerPlugin,
     ]);
+    
 
     console.log("All plugins registered successfully.");
 

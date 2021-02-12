@@ -5,16 +5,16 @@ export enum TodoPriority {
     Low = 'Low',
     Normal = 'Normal',
     High = 'High',
-    Immediate = 'Immediate',
 }
 
 export interface ITodo {
-    id: number;
     title: string;
+    description?: string;
     priority: TodoPriority;
     completed: boolean;
     deleted: boolean;
-    createdDate: Date;
+    dueDate: string;
+    createdAt: Date;
     updateAt: Date;
 }
 
@@ -43,10 +43,8 @@ export default class TodoModel implements IModel<ITodo> {
     }
 
     async insert(doc: ITodo) {
-        doc.createdDate = new Date();
-        doc.updateAt = doc.createdDate;
-        doc.deleted = false;
-        doc.completed = false;
+        doc.createdAt = new Date();
+        doc.updateAt = doc.createdAt;
         
         return this.todoCollection.insertOne(doc)
             .then(data => ({

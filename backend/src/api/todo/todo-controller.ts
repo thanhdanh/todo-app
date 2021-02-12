@@ -1,7 +1,7 @@
 import Hapi from '@hapi/hapi';
 import Boom from '@hapi/boom';
 import { IModel } from '../../interfaces';
-import { ITodo } from './todo-model';
+import { ITodo, TodoPriority } from './todo-model';
 
 export default class TodoController {   
     constructor(
@@ -26,7 +26,12 @@ export default class TodoController {
 
     async addTodo(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const todo = await this.model.insert(<ITodo> request.payload);
+            const data: ITodo = <ITodo> request.payload;
+            data.deleted = false;
+            data.completed = false;
+            data.priority = TodoPriority.Normal;
+
+            const todo = await this.model.insert(data);
 
             return h.response(todo).code(201);
         } catch (error) {

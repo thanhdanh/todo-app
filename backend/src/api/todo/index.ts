@@ -11,10 +11,12 @@ export function init(server: Hapi.Server) {
     const todoResponse = {
         _id: Joi.string().example('602671e6c6e16d567f763f42'),
         title: Joi.string().example('Do exercise'),
+        description: Joi.string().example('Do exercise with my friends'),
         completed: Joi.boolean().example(true),
         deleted: Joi.boolean().example(false),
-        createdDate: Joi.date().example("2021-02-12T12:17:42.496Z"),
-        updatedDate: Joi.date().example("2021-02-12T12:17:42.496Z")
+        dueDate: Joi.string().example("2021-02-12"),
+        createdAt: Joi.date().example("2021-02-12T12:17:42.496Z"),
+        updatedAt: Joi.date().example("2021-02-12T12:17:42.496Z")
     }
 
     server.route([
@@ -57,17 +59,12 @@ export function init(server: Hapi.Server) {
             path: "/todos",
             options: {
                 description: 'Add new todo',
+                cors: true,
                 tags: ["api", "todos"],
                 handler: todoController.addTodo.bind(todoController),
                 validate: {
                     payload: Joi.object().keys({
                         title: Joi.string().required(),
-                        priority: Joi.string().optional().valid(
-                            TodoPriority.Low,
-                            TodoPriority.Normal,
-                            TodoPriority.High,
-                            TodoPriority.Immediate
-                        ).default(TodoPriority.Normal)
                     })
                 },
                 response: {
@@ -94,12 +91,13 @@ export function init(server: Hapi.Server) {
                     }),
                     payload: Joi.object().keys({
                         title: Joi.string().optional(),
+                        description: Joi.string().optional(),
                         completed: Joi.boolean().optional(),
+                        dueDate: Joi.string().optional(),
                         priority: Joi.string().optional().valid(
                             TodoPriority.Low,
                             TodoPriority.Normal,
                             TodoPriority.High,
-                            TodoPriority.Immediate
                         )
                     })
                 },
