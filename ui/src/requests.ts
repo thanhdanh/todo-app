@@ -39,6 +39,10 @@ export async function addNewTodo(data: CreateTodoDto) {
 
 export async function updateTodo(id: string, data: UpdateTodoDto) {
     const url = apiDomain + '/todos/' + id + '/update';
-    console.log(url)
     return postData(url, data).then((response: any) => response.json());
+}
+
+export async function deleteTodo(id: string) {
+    const url = apiDomain + '/todos/' + id + '/delete';
+    return fetch(url, { cache: 'no-cache',  mode: 'cors', }).then(response => response.json())
 }

@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import moment from 'moment';
 import { EuiCheckbox, htmlIdGenerator, EuiTitle, EuiListGroupItem } from '@elastic/eui';
 import { ITodo, TodoPriority } from '../../types';
-import { updateTodo } from '../../requests';
+import { updateTodo, deleteTodo } from '../../requests';
 
-export default function TodoItem({ item, onUpdated }: { item: ITodo, onUpdated: Function }) {
+export default function TodoItem({ item, onUpdated, onSelect }: { item: ITodo, onUpdated: Function, onSelect: Function }) {
     const [checked, setCheck] = useState(item.completed);
     console.log(item.title, item.completed, checked)
     const isOverdue = !!item.dueDate && moment().isAfter(item.dueDate, 'day');
@@ -16,8 +16,9 @@ export default function TodoItem({ item, onUpdated }: { item: ITodo, onUpdated: 
         onUpdated()
     }
 
-    const handleDeleteTodo = () => {
-
+    const handleDeleteTodo = async () => {
+        await deleteTodo(item._id);
+        onUpdated()
     }
 
     const colorOfTodo = (item: ITodo): "inherit" | "ghost" | "primary" | "subdued" | "text" | undefined => {
@@ -48,10 +49,10 @@ export default function TodoItem({ item, onUpdated }: { item: ITodo, onUpdated: 
                     {isOverdue ? <span>Overdue {moment(item.dueDate).format("MMM Do YY")} </span> : item.dueDate? <span>Due on {moment(item.dueDate).format("MMM Do YY")}</span> : null}
                 </div>
             }
-            onClick={() => {}}
+            onClick={() => onSelect()}
             color={colorOfTodo(item)}
             extraAction={{
-                color: 'subdued',
+                color: 'danger',
                 onClick: handleDeleteTodo,
                 iconType: 'minusInCircle',
                 iconSize: 's',
