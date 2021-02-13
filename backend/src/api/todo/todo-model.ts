@@ -8,6 +8,7 @@ export enum TodoPriority {
 }
 
 export interface ITodo {
+    _id?: string | ObjectId | undefined;
     title: string;
     description?: string;
     priority: TodoPriority;
@@ -15,7 +16,7 @@ export interface ITodo {
     deleted: boolean;
     dueDate: string;
     createdAt: Date;
-    updateAt: Date;
+    updatedAt: Date;
 }
 
 export default class TodoModel implements IModel<ITodo> {
@@ -36,15 +37,22 @@ export default class TodoModel implements IModel<ITodo> {
         return cursor.toArray();
     }
 
-    findById(id: string) {
-        return this.todoCollection.findOne({
-            _id: new ObjectId(id),
-        })
+    async findById(id: string) {
+        try {
+            const result = await this.todoCollection.findOne({
+                _id: new ObjectId(id),
+            })
+            return result;
+        } catch (error) {
+            console.log("error", error);
+            throw error;
+        }
+        
     }
 
-    async insert(doc: ITodo) {
+    async insert(doc: Omit<ITodo, '_id'>) {
         doc.createdAt = new Date();
-        doc.updateAt = doc.createdAt;
+        doc.updatedAt = doc.createdAt;
         
         return this.todoCollection.insertOne(doc)
             .then(data => ({
@@ -53,15 +61,14 @@ export default class TodoModel implements IModel<ITodo> {
             }));
     }
 
-    async update(id: string, doc: ITodo) {
-        doc.updateAt = new Date();
-        
+    async update(id: string, doc: ITodo): Promise<ITodo| null> {
+        doc.updatedAt = new Date();
         const result = await this.todoCollection.updateOne(
             { _id: new ObjectId(id) },
             { $set: doc },
         );
         if (result.matchedCount) {
-            return this.findById(id);
+            return await this.findById(id);
         }
         return null;
     }

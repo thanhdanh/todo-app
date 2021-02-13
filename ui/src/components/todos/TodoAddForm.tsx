@@ -2,7 +2,7 @@ import { EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow } from '@e
 import React, { useState } from 'react';
 import { addNewTodo } from '../../requests';
 
-export default function TodoAddForm() {
+export default function TodoAddForm({ onCreated }: { onCreated: Function }) {
     const [loading, setLoading] = useState(false);
     const [title, setTitle] = useState('');
 
@@ -14,7 +14,7 @@ export default function TodoAddForm() {
         };
 
         setLoading(true)
-        await addNewTodo({ title: target.title.value })
+        await addNewTodo({ title: target.title.value }).then(() => onCreated())
         setLoading(false)
         setTitle('')
     }

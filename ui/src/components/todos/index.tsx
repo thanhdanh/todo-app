@@ -1,9 +1,34 @@
 import { EuiHeader, EuiHeaderLink, EuiHeaderLinks, EuiHeaderLogo, EuiHeaderSectionItem, EuiSpacer } from '@elastic/eui';
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect } from 'react';
+import { connect, ConnectedProps } from 'react-redux';
+import { fetchListTodos } from '../../requests';
+import { setTodos } from "../../redux/actions";
+
 import TodoAddForm from './TodoAddForm';
 import TodoList from './Todos';
 
-export default function Todos() {
+function Todos({ setTodos }: PropsFromRedux) {
+    const fetchTodos = async () => {
+        try {
+            const list = await fetchListTodos();
+            setTodos(list)
+        } catch (error) {
+
+        }
+    }
+
+    useEffect(() => {
+        fetchTodos();
+    }, [])
+
+    const handleAfterCreated = () => {
+        fetchTodos();
+    }
+
+    const handleAfterUpdated = () => {
+        fetchTodos();
+    }
+
     return (
         <Fragment>
             <EuiHeader>
@@ -19,9 +44,14 @@ export default function Todos() {
                 </EuiHeaderSectionItem>
             </EuiHeader>
             <EuiSpacer size="s" />
-            <TodoAddForm />
+            <TodoAddForm onCreated={handleAfterCreated} />
             <EuiSpacer size="s" />
-            <TodoList />
+            <TodoList onUpdated={handleAfterUpdated} />
         </Fragment>
     )
 }
+
+const connector = connect(null, { setTodos })
+type PropsFromRedux = ConnectedProps<typeof connector>;
+
+export default connector(Todos);

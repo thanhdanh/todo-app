@@ -1,41 +1,29 @@
-import { AnyAction } from "redux";
-import { ADD_TODO, TOGGLE_TODO } from "../actionTypes";
+import { FilterStatusTodo, ITodo, TodosActionTypes } from "../../types";
+import { SET_TODOS, SET_VISIBLE_FILTER_TODO } from "../actionTypes";
 
-const initialState = {
-    allIds: [],
-    byIds: {}
+interface IStateOfTodos {
+    list: ITodo[],
+    visibilityFilter: FilterStatusTodo
+} 
+
+const initialState: IStateOfTodos = {
+    list: [],
+    visibilityFilter: FilterStatusTodo.ALL,
 };
 
-export default function (state = initialState, action: AnyAction) {
+export default function (state = initialState, action: TodosActionTypes) {
     switch (action.type) {
-        case ADD_TODO: {
-          const { id, content } = action.payload;
-          return {
-            ...state,
-            allIds: [...state.allIds, id],
-            byIds: {
-              ...state.byIds,
-              [id]: {
-                content,
-                completed: false
-              }
-            }
-          };
-        }
-        // case TOGGLE_TODO: {
-        //   const { id } = action.payload;
-        //   return {
-        //     ...state,
-        //     byIds: {
-        //       ...state.byIds,
-        //       [id]: {
-        //         ...state.byIds[id],
-        //         completed: !state.byIds[id].completed
-        //       }
-        //     }
-        //   };
-        // }
+        case SET_TODOS:
+            return {
+                ...state,
+                list: action.payload,
+            };
+        case SET_VISIBLE_FILTER_TODO:
+            return {
+                ...state,
+                visibilityFilter: action.payload,
+            };
         default:
-          return state;
-      }
+            return state;
+    }
 }

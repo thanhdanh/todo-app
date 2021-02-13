@@ -1,3 +1,2 @@
-export const ADD_TODO = "ADD_TODO";
-export const TOGGLE_TODO = "TOGGLE_TODO";
-export const SET_FILTER = "SET_FILTER";
+export const SET_TODOS = "SET_TODOS";
+export const SET_VISIBLE_FILTER_TODO = "SET_VISIBLE_FILTER_TODO";

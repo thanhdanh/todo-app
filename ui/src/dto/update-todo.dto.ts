@@ -1,4 +1,4 @@
-import { TodoPriority } from "../interfaces/todo.interface";
+import { TodoPriority } from "../types";
 
 export class UpdateTodoDto {
     title?: string;

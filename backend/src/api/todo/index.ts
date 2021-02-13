@@ -1,18 +1,21 @@
 import Hapi from '@hapi/hapi';
 import Joi from 'joi';
-
+import JoiObjectId from "joi-objectid";
 import TodoController from './todo-controller';
 import TodoModel, { TodoPriority } from './todo-model';
+
+const myJoiObjectId = JoiObjectId(Joi);
 
 export function init(server: Hapi.Server) {
     const todoModel = new TodoModel(server.app.db);
     const todoController = new TodoController(todoModel);
 
     const todoResponse = {
-        _id: Joi.string().example('602671e6c6e16d567f763f42'),
+        _id: myJoiObjectId().example('602671e6c6e16d567f763f42'),
         title: Joi.string().example('Do exercise'),
         description: Joi.string().example('Do exercise with my friends'),
         completed: Joi.boolean().example(true),
+        priority: Joi.string().example(TodoPriority.Normal),
         deleted: Joi.boolean().example(false),
         dueDate: Joi.string().example("2021-02-12"),
         createdAt: Joi.date().example("2021-02-12T12:17:42.496Z"),
@@ -26,8 +29,33 @@ export function init(server: Hapi.Server) {
             options: {
                 description: 'Get list todos',
                 tags: ["api", "todos"],
+                cors: true,
                 handler: todoController.getListTodos.bind(todoController),
             },
+        },
+        {
+            method: "POST",
+            path: "/todos",
+            options: {
+                description: 'Add new todo',
+                cors: true,
+                tags: ["api", "todos"],
+                handler: todoController.addTodo.bind(todoController),
+                validate: {
+                    payload: Joi.object().keys({
+                        title: Joi.string().required(),
+                    })
+                },
+                response: {
+                    status: {
+                        ['200']: Joi.object({
+                            ...todoResponse,
+                            completed: Joi.boolean().example(false),
+                            deleted: Joi.boolean().example(false),
+                        }).description('Delete successful')
+                    }
+                }
+            }
         },
         {
             method: "GET",
@@ -56,34 +84,11 @@ export function init(server: Hapi.Server) {
         },
         {
             method: "POST",
-            path: "/todos",
-            options: {
-                description: 'Add new todo',
-                cors: true,
-                tags: ["api", "todos"],
-                handler: todoController.addTodo.bind(todoController),
-                validate: {
-                    payload: Joi.object().keys({
-                        title: Joi.string().required(),
-                    })
-                },
-                response: {
-                    status: {
-                        ['200']: Joi.object({
-                            ...todoResponse,
-                            completed: Joi.boolean().example(false),
-                            deleted: Joi.boolean().example(false),
-                        }).description('Delete successful')
-                    }
-                }
-            }
-        },
-        {
-            method: "PUT",
-            path: "/todos/{id}",
+            path: "/todos/{id}/update",
             options: {
                 description: 'Update a todo by id',
                 tags: ["api", "todos"],
+                cors: true,
                 handler: todoController.updateTodo.bind(todoController),
                 validate: {
                     params: Joi.object({
@@ -115,11 +120,12 @@ export function init(server: Hapi.Server) {
             }
         },
         {
-            method: "DELETE",
-            path: "/todos/{id}",
+            method: "GET",
+            path: "/todos/{id}/delete",
             options: {
                 description: 'Delete a todo by id',
                 tags: ["api", "todos"],
+                cors: true,
                 handler: todoController.deleteTodo.bind(todoController),
                 validate: {
                     params: Joi.object({

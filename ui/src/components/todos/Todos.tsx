@@ -1,16 +1,38 @@
 import React, { Fragment } from 'react';
-import { EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
+import { EuiListGroup } from '@elastic/eui';
 import TodoItem from './TodoItem';
+import { RootState } from '../../redux/reducers';
+import { getTodosByVisibilityFilter } from '../../redux/selectors';
+import { connect, ConnectedProps } from 'react-redux';
 
-export default function TodoList({ todos = []}) {
+type Props = PropsFromRedux & {
+    onUpdated: Function
+}
+
+function TodoList({ todos, onUpdated }: Props) {
     return (
         <Fragment>
-            <EuiFlexGroup alignItems="center">
+            <EuiListGroup gutterSize="s">
                 {
-                    todos.map((item, index) => <TodoItem key={index} item={item} />)
+                    todos.map((item) => (
+                        <Fragment key={item._id}>
+                            <TodoItem item={item} onUpdated={onUpdated} />
+                        </Fragment>
+                    ))
                 }
-            </EuiFlexGroup>
-        </Fragment>
+            </EuiListGroup>
 
+        </Fragment>
     )
 }
+
+const mapStateToProps = (state: RootState) => {
+    const todos = getTodosByVisibilityFilter(state);
+    return { todos };
+};
+
+const connector = connect(mapStateToProps)
+
+type PropsFromRedux = ConnectedProps<typeof connector>
+
+export default connector(TodoList)
