@@ -11,7 +11,7 @@ const initialState: IStateOfTodos = {
     visibilityFilter: FilterStatusTodo.ALL,
 };
 
-export default function (state = initialState, action: TodosActionTypes) {
+export default function actions(state = initialState, action: TodosActionTypes) {
     switch (action.type) {
         case SET_TODOS:
             return {

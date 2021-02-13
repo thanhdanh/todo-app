@@ -5,7 +5,7 @@ const apiDomain = 'http://localhost:13009';
 
 export async function postData(url = '', data = {}, headers = {}) {
     // Default options are marked with *
-    const fetchOptions = <RequestInit> {
+    const fetchOptions = {
         method: 'POST', // *GET, POST, PUT, DELETE, etc.
         mode: 'cors', // no-cors, *cors, same-origin
         credentials: 'same-origin', // include, *same-origin, omit
@@ -16,7 +16,7 @@ export async function postData(url = '', data = {}, headers = {}) {
         },
         body: JSON.stringify(data),
         referrerPolicy: 'no-referrer',
-    }
+    } as RequestInit
 
     console.log(fetchOptions)
     return Promise.race([

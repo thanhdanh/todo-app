@@ -1,8 +1,23 @@
-import { EuiButtonGroup, EuiButtonIcon, EuiCheckbox, EuiDatePicker, EuiFieldText, EuiFlexGroup, EuiFlexItem, EuiForm, EuiFormRow, EuiTextArea, htmlIdGenerator } from '@elastic/eui';
-import React, { useState } from 'react';
+import {
+    EuiBadge,
+    EuiButtonGroup,
+    EuiButtonIcon,
+    EuiCheckbox,
+    EuiDatePicker,
+    EuiFieldText,
+    EuiFlexGroup,
+    EuiFlexItem,
+    EuiForm,
+    EuiFormRow,
+    EuiTextArea,
+    htmlIdGenerator
+} from '@elastic/eui';
+import React, { useCallback, useState } from 'react';
 import { ITodo, TodoPriority } from '../../types';
 import moment from 'moment';
 import PropTypes from 'prop-types';
+import { updateTodo } from '../../requests';
+import { debounce } from "lodash";
 
 
 const ExampleCustomInput = ({ onClick }: { onClick: any }) => {
@@ -10,7 +25,6 @@ const ExampleCustomInput = ({ onClick }: { onClick: any }) => {
         <EuiButtonIcon
             aria-label="Choose due date"
             iconType="calendar"
-            // aria-pressed={toggle3On}
             color={'primary'}
             onClick={onClick}
         />
@@ -24,9 +38,11 @@ ExampleCustomInput.propTypes = {
 
 
 export default function TodoEditForm({ item }: { item: ITodo }) {
+    const [title, setTitle] = useState(item.title);
     const [checked, setChecked] = useState(item.completed);
     const [dueDate, setDueDate] = useState(item.dueDate ? moment(item.dueDate) : moment());
 
+    const handlerFunctionWithDebounce = useCallback(debounce((data: Object) => updateTodo(item._id, data), 600), []);
     const priorityToggleButtons = [
         {
             id: TodoPriority.Low,
@@ -47,40 +63,64 @@ export default function TodoEditForm({ item }: { item: ITodo }) {
         setPritorityToggleButtonsIdSelected,
     ] = useState(item.priority);
 
-    const onPriorityChange: any = (optionId: TodoPriority) => {
+    const onPriorityChange: any = async (optionId: TodoPriority) => {
         setPritorityToggleButtonsIdSelected(optionId);
+        handlerFunctionWithDebounce({ priority: optionId })
     };
 
-    const onDueDateChange: any = (data: moment.Moment) => {
+    const onDueDateChange: any = async (data: moment.Moment) => {
         setDueDate(data);
+        handlerFunctionWithDebounce({ dueDate: data.toString() })
     };
+
+    const onTitleChange = async (value: string) => {
+        setTitle(value);
+        handlerFunctionWithDebounce({ title: value })
+    }
+
+    const onDescriptionChange = async (value: string) => {
+        handlerFunctionWithDebounce({ description: value })
+    }
+
+    const onCheckCompleteChange = async (value: boolean) => {
+        setChecked(value)
+        handlerFunctionWithDebounce({ completed: value })
+    }
+
 
     return (
         <EuiForm component="form">
             <EuiFormRow label="Title">
-                <EuiFieldText name="title" value={item.title} />
+                <EuiFieldText name="title" value={title} onChange={(e) => onTitleChange(e.target.value)} />
+            </EuiFormRow>
+            <EuiFormRow>
+                <EuiCheckbox
+                    id={htmlIdGenerator()()}
+                    checked={checked}
+                    label="Complete todo"
+                    onChange={() => onCheckCompleteChange(!checked)}
+                />
+            </EuiFormRow>
+            <EuiFormRow>
+                <EuiFlexGroup justifyContent="spaceBetween">
+                    <EuiFlexItem grow={false}>
+                        <EuiDatePicker
+                            selected={dueDate}
+                            onChange={onDueDateChange}
+                            customInput={<ExampleCustomInput />}
+
+                        />
+                        {item.dueDate && 
+                        <EuiBadge color={moment().isBefore(dueDate, 'day') ? "secondary" : "#FCF7BC"}>
+                            Due on {dueDate.format('ll')}
+                      </EuiBadge>}
+
+                    </EuiFlexItem>
+                    
+                </EuiFlexGroup>
             </EuiFormRow>
 
-            <EuiFlexGroup justifyContent="spaceBetween">
-                <EuiFlexItem grow={false}>
-                    <EuiDatePicker
-                        selected={dueDate}
-                        onChange={onDueDateChange}
-                        customInput={<ExampleCustomInput />}
-                    />
-                    {item.dueDate && <span>Due on {moment(item.dueDate, 'L')}</span>}
-                </EuiFlexItem>
-                <EuiFlexItem grow={false}>
-                    <EuiFormRow label="Complete todo">
-                        <EuiCheckbox
-                            id={htmlIdGenerator()()}
-                            checked={checked}
-                            onChange={() => setChecked(!checked)}
-                        />
-                    </EuiFormRow>
-                </EuiFlexItem>
-            </EuiFlexGroup>
-            <EuiFormRow label="Priority">
+            <EuiFormRow>
                 <EuiButtonGroup
                     legend="Granulariy of zoom levels"
                     options={priorityToggleButtons}
@@ -92,10 +132,10 @@ export default function TodoEditForm({ item }: { item: ITodo }) {
             </EuiFormRow>
             <EuiFormRow label="Description">
                 <EuiTextArea
-                    placeholder="Descibe more about your todo"
+                    placeholder="Describe more about your todo"
                     aria-label="Use aria labels when no actual label is in use"
                     value={item.description}
-                    onChange={(e) => { }}
+                    onChange={(e) => onDescriptionChange(e.target.value)}
                 />
             </EuiFormRow>
         </EuiForm>

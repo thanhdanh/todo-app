@@ -19,7 +19,7 @@ function Todos({ setTodos }: PropsFromRedux) {
 
     useEffect(() => {
         fetchTodos();
-    }, [])
+    })
 
     const handleAfterCreated = () => {
         fetchTodos();

@@ -1,12 +1,10 @@
 import React, { Fragment, useState } from 'react';
-import { EuiCheckbox, EuiDatePicker, EuiFlexGroup, EuiFlexItem, EuiFlyout, EuiFlyoutBody, EuiFlyoutHeader, EuiFormRow, EuiListGroup, EuiSpacer, EuiTextArea, EuiTitle, htmlIdGenerator } from '@elastic/eui';
+import { EuiFlyout, EuiFlyoutBody, EuiListGroup } from '@elastic/eui';
 import TodoItem from './TodoItem';
 import { RootState } from '../../redux/reducers';
 import { getTodosByVisibilityFilter } from '../../redux/selectors';
 import { connect, ConnectedProps } from 'react-redux';
-import moment from 'moment';
 import { ITodo } from '../../types';
-import { updateTodo } from '../../requests';
 import TodoEditForm from './TodoEditForm';
 
 type Props = PropsFromRedux & {
@@ -32,7 +30,6 @@ function TodoList({ todos, onUpdated }: Props) {
 
 
     if (isFlyoutVisible && itemSelecting) {
-        const dueDate = itemSelecting.dueDate ? moment(itemSelecting.dueDate) : moment();
         TodoSeclecting = (
             <EuiFlyout
                 ownFocus

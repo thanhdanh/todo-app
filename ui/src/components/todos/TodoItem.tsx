@@ -1,12 +1,11 @@
 import React, { useState } from 'react';
 import moment from 'moment';
-import { EuiCheckbox, htmlIdGenerator, EuiTitle, EuiListGroupItem } from '@elastic/eui';
+import { EuiCheckbox, htmlIdGenerator, EuiTitle, EuiListGroupItem, EuiBadge, EuiFlexGroup, EuiFlexItem } from '@elastic/eui';
 import { ITodo, TodoPriority } from '../../types';
 import { updateTodo, deleteTodo } from '../../requests';
 
 export default function TodoItem({ item, onUpdated, onSelect }: { item: ITodo, onUpdated: Function, onSelect: Function }) {
     const [checked, setCheck] = useState(item.completed);
-    console.log(item.title, item.completed, checked)
     const isOverdue = !!item.dueDate && moment().isAfter(item.dueDate, 'day');
 
     const handleToogleTodo = async () => {
@@ -21,16 +20,16 @@ export default function TodoItem({ item, onUpdated, onSelect }: { item: ITodo, o
         onUpdated()
     }
 
-    const colorOfTodo = (item: ITodo): "inherit" | "ghost" | "primary" | "subdued" | "text" | undefined => {
-        if (isOverdue) return 'text';
+    const getPriorityBadge = (item: ITodo) => {
+        if (isOverdue) return <EuiBadge color="warning">{item.priority}</EuiBadge>
         switch (item.priority) {
             case TodoPriority.High:
-                return "ghost";
+                return <EuiBadge color="accent">{item.priority}</EuiBadge>
             case TodoPriority.Low:
-                return 'inherit';
+                return <EuiBadge color="default">{item.priority}</EuiBadge>
             case TodoPriority.Normal:
             default:
-                return 'subdued'
+                return <EuiBadge color="primary">{item.priority}</EuiBadge>
         }
     }
 
@@ -45,12 +44,16 @@ export default function TodoItem({ item, onUpdated, onSelect }: { item: ITodo, o
             }
             label={
                 <div>
-                    <EuiTitle size="xxs"><h5>{item.title}</h5></EuiTitle>
-                    {isOverdue ? <span>Overdue {moment(item.dueDate).format("MMM Do YY")} </span> : item.dueDate? <span>Due on {moment(item.dueDate).format("MMM Do YY")}</span> : null}
+                    <EuiTitle size="xxs"><h4>{item.title}</h4></EuiTitle>
+                    <EuiFlexGroup justifyContent="spaceBetween">
+                        <EuiFlexItem grow={false}>{getPriorityBadge(item)}</EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                        {isOverdue ? <small>Overdue {moment(item.dueDate).format("ll")} </small> : item.dueDate ? <small>Due on {moment(item.dueDate).format("ll")}</small> : null}
+                        </EuiFlexItem>
+                    </EuiFlexGroup>
                 </div>
             }
             onClick={() => onSelect()}
-            color={colorOfTodo(item)}
             extraAction={{
                 color: 'danger',
                 onClick: handleDeleteTodo,
@@ -58,7 +61,7 @@ export default function TodoItem({ item, onUpdated, onSelect }: { item: ITodo, o
                 iconSize: 's',
                 'aria-label': 'Delete todo',
             }}
-            style={{ borderBottom: '1px solid #e1e1e1' }}
+            style={{ borderBottom: '1px solid #e1e1e1', width: '100%' }}
         />
 
     )
