@@ -26,6 +26,14 @@ services:
       - mongodb
     networks:
       - app-tier
+  todo_app_ui:
+    build: ./ui
+    container_name: todo_app_ui
+    volumes:
+      - './ui:/app'
+      - '/app/node_modules'
+    ports:
+      - '13010:80'
 
 
 
