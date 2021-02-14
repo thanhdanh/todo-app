@@ -21,7 +21,7 @@ export default function TodoItem({ item, onUpdated, onSelect }: { item: ITodo, o
     }
 
     const getPriorityBadge = (item: ITodo) => {
-        if (isOverdue) return <EuiBadge color="warning">{item.priority}</EuiBadge>
+        if (isOverdue && !item.completed) return <EuiBadge color="warning">{item.priority}</EuiBadge>
         switch (item.priority) {
             case TodoPriority.High:
                 return <EuiBadge color="accent">{item.priority}</EuiBadge>
@@ -43,17 +43,16 @@ export default function TodoItem({ item, onUpdated, onSelect }: { item: ITodo, o
                 />
             }
             label={
-                <div>
+                <div onClick={() => onSelect()} style={{ cursor: 'pointer' }}>
                     <EuiTitle size="xxs"><h4>{item.title}</h4></EuiTitle>
                     <EuiFlexGroup justifyContent="spaceBetween">
                         <EuiFlexItem grow={false}>{getPriorityBadge(item)}</EuiFlexItem>
                         <EuiFlexItem grow={false}>
-                        {isOverdue ? <small>Overdue {moment(item.dueDate).format("ll")} </small> : item.dueDate ? <small>Due on {moment(item.dueDate).format("ll")}</small> : null}
+                        {isOverdue? <small>Overdue {moment(item.dueDate).format("ll")} </small> : item.dueDate ? <small>Due on {moment(item.dueDate).format("ll")}</small> : null}
                         </EuiFlexItem>
                     </EuiFlexGroup>
                 </div>
             }
-            onClick={() => onSelect()}
             extraAction={{
                 color: 'danger',
                 onClick: handleDeleteTodo,
@@ -61,7 +60,7 @@ export default function TodoItem({ item, onUpdated, onSelect }: { item: ITodo, o
                 iconSize: 's',
                 'aria-label': 'Delete todo',
             }}
-            style={{ borderBottom: '1px solid #e1e1e1', width: '100%' }}
+            style={{ borderBottom: '1px solid #e1e1e1' }}
         />
 
     )

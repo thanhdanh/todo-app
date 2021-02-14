@@ -44,6 +44,7 @@ export function init(server: Hapi.Server) {
                 validate: {
                     payload: Joi.object().keys({
                         title: Joi.string().required(),
+                        completed: Joi.boolean().optional(),
                     })
                 },
                 response: {

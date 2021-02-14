@@ -44,8 +44,6 @@ function TodoList({ todos, onUpdated }: Props) {
         )
     }
 
-
-
     return (
         <Fragment>
             <EuiListGroup gutterSize="s">

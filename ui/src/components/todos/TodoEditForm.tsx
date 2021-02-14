@@ -1,7 +1,7 @@
 import {
     EuiBadge,
+    EuiButton,
     EuiButtonGroup,
-    EuiButtonIcon,
     EuiCheckbox,
     EuiDatePicker,
     EuiFieldText,
@@ -20,14 +20,24 @@ import { updateTodo } from '../../requests';
 import { debounce } from "lodash";
 
 
-const ExampleCustomInput = ({ onClick }: { onClick: any }) => {
+const ExampleCustomInput = ({ onClick, value }: { onClick: any, value: any }) => {
     return (
-        <EuiButtonIcon
+        <EuiButton
             aria-label="Choose due date"
             iconType="calendar"
-            color={'primary'}
+            iconSide="left"
+            title="Set due date"
             onClick={onClick}
-        />
+        >
+            {moment(value).calendar(null, {
+                 sameDay: '[Today]',
+                 nextDay: '[Tomorrow]',
+                 nextWeek: 'dddd',
+                 lastDay: '[Yesterday]',
+                 lastWeek: '[Last] dddd',
+                 sameElse: 'DD/MM/YYYY'
+            })}
+        </EuiButton>
     );
 };
 
@@ -42,7 +52,7 @@ export default function TodoEditForm({ item }: { item: ITodo }) {
     const [checked, setChecked] = useState(item.completed);
     const [dueDate, setDueDate] = useState(item.dueDate ? moment(item.dueDate) : moment());
 
-    const handlerFunctionWithDebounce = useCallback(debounce((data: Object) => updateTodo(item._id, data), 600), []);
+    const handlerFunctionWithDebounce = useCallback(debounce((data: Object) => updateTodo(item._id, data), 400), []);
     const priorityToggleButtons = [
         {
             id: TodoPriority.Low,
@@ -108,12 +118,13 @@ export default function TodoEditForm({ item }: { item: ITodo }) {
                             selected={dueDate}
                             onChange={onDueDateChange}
                             customInput={<ExampleCustomInput />}
-
                         />
-                        {item.dueDate && 
-                        <EuiBadge color={moment().isBefore(dueDate, 'day') ? "secondary" : "#FCF7BC"}>
-                            Due on {dueDate.format('ll')}
-                      </EuiBadge>}
+                        {
+                            item.dueDate && 
+                            <EuiBadge color={moment().isBefore(dueDate, 'day') ? "secondary" : "#FCF7BC"}>
+                                Due on {dueDate.format('ll')}
+                            </EuiBadge>
+                        }
 
                     </EuiFlexItem>
                     

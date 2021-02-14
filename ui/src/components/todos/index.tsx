@@ -2,12 +2,14 @@ import { EuiHeader, EuiHeaderLink, EuiHeaderLinks, EuiHeaderLogo, EuiHeaderSecti
 import React, { Fragment, useEffect } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 import { fetchListTodos } from '../../requests';
-import { setTodos } from "../../redux/actions";
+import { setTodos, setVisibleFilter } from "../../redux/actions";
 
 import TodoAddForm from './TodoAddForm';
 import TodoList from './Todos';
+import { RootState } from '../../redux/reducers';
+import { FilterStatusTodo } from '../../types';
 
-function Todos({ setTodos }: PropsFromRedux) {
+function Todos({ setTodos, activeFilter, setVisibleFilter }: PropsFromRedux) {
     const fetchTodos = async () => {
         try {
             const list = await fetchListTodos();
@@ -29,6 +31,13 @@ function Todos({ setTodos }: PropsFromRedux) {
         fetchTodos();
     }
 
+    const getPropsOfFilterLink = (type: FilterStatusTodo) => {
+        return {
+            isActive: activeFilter === type,
+            onClick: () => setVisibleFilter(type)
+        }
+    }
+
     return (
         <Fragment>
             <EuiHeader>
@@ -36,10 +45,10 @@ function Todos({ setTodos }: PropsFromRedux) {
                     <EuiHeaderLogo>Todo's | All Todo's</EuiHeaderLogo>
                 </EuiHeaderSectionItem>
                 <EuiHeaderSectionItem>
-                    <EuiHeaderLinks aria-label="App navigation links example">
-                        <EuiHeaderLink isActive>All</EuiHeaderLink>
-                        <EuiHeaderLink iconType='clock'>Due Todo's</EuiHeaderLink>
-                        <EuiHeaderLink iconType='checkInCircleFilled'>Done</EuiHeaderLink>
+                    <EuiHeaderLinks>
+                        <EuiHeaderLink {...getPropsOfFilterLink(FilterStatusTodo.ALL)}>All</EuiHeaderLink>
+                        <EuiHeaderLink {...getPropsOfFilterLink(FilterStatusTodo.OVERDUE)} iconType='clock'>Due Todo's</EuiHeaderLink>
+                        <EuiHeaderLink {...getPropsOfFilterLink(FilterStatusTodo.COMPLETED)}  iconType='checkInCircleFilled'>Done</EuiHeaderLink>
                     </EuiHeaderLinks>
                 </EuiHeaderSectionItem>
             </EuiHeader>
@@ -51,7 +60,10 @@ function Todos({ setTodos }: PropsFromRedux) {
     )
 }
 
-const connector = connect(null, { setTodos })
+const mapStateToProps = (state: RootState) => {
+    return { activeFilter: state.todos.visibilityFilter };
+};
+const connector = connect(mapStateToProps, { setTodos, setVisibleFilter })
 type PropsFromRedux = ConnectedProps<typeof connector>;
 
 export default connector(Todos);

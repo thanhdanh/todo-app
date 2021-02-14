@@ -14,7 +14,7 @@ export const getTodosByVisibilityFilter = (state: RootState) => {
         case VISIBILITY_FILTERS.COMPLETED:
             return allTodos.filter(todo => todo.completed);
         case VISIBILITY_FILTERS.OVERDUE:
-            return allTodos.filter(todo => todo.dueDate && moment().isAfter(todo.dueDate, 'day'));
+            return allTodos.filter(todo => !todo.completed && todo.dueDate && moment().isAfter(todo.dueDate, 'day'));
         case VISIBILITY_FILTERS.ALL:
         default:
             return allTodos.filter(todo => !todo.completed);

@@ -28,10 +28,12 @@ export default class TodoController {
 
     async addTodo(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const data: ITodo = <ITodo>request.payload;
-            data.deleted = false;
-            data.completed = false;
-            data.priority = TodoPriority.Normal;
+            const data: ITodo = {
+                deleted: false,
+                completed: false,
+                priority: TodoPriority.Normal,
+                ...<ITodo> request.payload,
+            }
 
             const todo = await this.model.insert(data);
 
